@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image
-import io
+from model_helper import predict
+import time
 import os
 
 # Page configuration
@@ -16,40 +17,35 @@ st.markdown("""
 <style>
     .main-header {
         text-align: center;
-        color: #1E3A8A;
+        color: #2E86C1;
         font-size: 3rem;
-        font-weight: bold;
         margin-bottom: 1rem;
     }
     .sub-header {
         text-align: center;
-        color: #1F2937;
+        color: #566573;
         font-size: 1.2rem;
         margin-bottom: 2rem;
     }
     .prediction-box {
-        background: linear-gradient(135deg, #10B981, #059669);
-        color: white;
-        padding: 1.5rem;
+        background-color: #57A8F7;
+        padding: 1rem;
         margin: 1rem 0;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
     }
     .error-box {
-        background: linear-gradient(135deg, #EF4444, #DC2626);
-        color: white;
-        padding: 1.5rem;
+        background-color: #FDEDEC;
+        border-left: 5px solid #E74C3C;
+        padding: 1rem;
         margin: 1rem 0;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
     }
     .info-box {
-        background: linear-gradient(135deg, #3B82F6, #2563EB);
-        color: white;
-        padding: 1.5rem;
+        background-color: #57A8F7;
+        border-left: 5px solid #3498DB;
+        padding: 1rem;
         margin: 1rem 0;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -92,12 +88,12 @@ with col1:
     
     uploaded_file = st.file_uploader(
         "Choose an image file", 
-        type=["jpg", "png", "jpeg"],
+        type=["jpg", "png", "jpeg", "jpe", "jfif"],  # Added more JPEG variants
         help="Upload a clear image of your vehicle for damage detection"
     )
     
     if uploaded_file:
-        # Display file info
+        # Display file info (removed file type)
         file_details = {
             "Filename": uploaded_file.name,
             "File size": f"{uploaded_file.size / 1024:.2f} KB"
@@ -120,16 +116,24 @@ with col2:
             if st.button("🔍 Analyze Damage", type="primary", use_container_width=True):
                 with st.spinner("🤖 AI is analyzing your vehicle image..."):
                     try:
-                        # Import model helper inside the button to avoid loading issues
-                        from model_helper import predict_from_image
+                        # Save temporarily for model prediction
+                        temp_path = "temp_vehicle_image.jpg"
+                        image.save(temp_path)
                         
-                        # Make prediction directly from PIL image
-                        prediction = predict_from_image(image)
+                        # Simulate processing time for better UX
+                        time.sleep(1)
+                        
+                        # Make prediction
+                        prediction = predict(temp_path)
+                        
+                        # Clean up temporary file
+                        if os.path.exists(temp_path):
+                            os.remove(temp_path)
                         
                         # Display results
                         st.success("✅ Analysis Complete!")
                         
-                        # Determine damage severity
+                        # Determine damage severity and color
                         if "Normal" in prediction:
                             result_color = "🟢"
                             severity = "No Damage"
@@ -159,13 +163,13 @@ with col2:
                             with col_a:
                                 st.metric("Damage Location", prediction.split()[0])
                             with col_b:
-                                st.metric("Damage Type", prediction.split()[1] if len(prediction.split()) > 1 else "Unknown")
+                                st.metric("Damage Type", prediction.split()[1])
                         
                     except Exception as e:
                         st.markdown(f"""
                         <div class="error-box">
                             <h3>❌ Analysis Failed</h3>
-                            <p><strong>Error:</strong> {str(e)}</p>
+                            <p>Error: {str(e)}</p>
                             <p>Please try uploading a different image or contact support.</p>
                         </div>
                         """, unsafe_allow_html=True)
@@ -183,7 +187,7 @@ with col2:
 # Footer
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; color: #374151; padding: 1rem; font-weight: 500;">
+<div style="text-align: center; color: #7F8C8D; padding: 1rem;">
     <p>🤖 Powered by AI Deep Learning | 🔒 Your images are processed securely and not stored</p>
 </div>
 """, unsafe_allow_html=True)
