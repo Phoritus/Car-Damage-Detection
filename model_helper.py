@@ -63,7 +63,6 @@ def load_model():
             model.load_state_dict(state_dict)
             model.eval()
             trained_model = model
-            st.success("✅ Model loaded successfully!")
             return model
         else:
             st.error("❌ Model file 'saved_model.pth' not found in the app directory.")
