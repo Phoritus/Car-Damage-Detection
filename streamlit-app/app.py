@@ -88,7 +88,7 @@ with col1:
     
     uploaded_file = st.file_uploader(
         "Choose an image file", 
-        type=["jpg", "png", "jpeg", "jpe", "jfif"],  # Added more JPEG variants
+        type=["jpg", "png", "jpeg"],  # Added more JPEG variants
         help="Upload a clear image of your vehicle for damage detection"
     )
     
