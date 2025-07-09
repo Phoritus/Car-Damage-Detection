@@ -47,4 +47,4 @@ def predict(image_path):
         output = trained_model(image_tensor)
         _, predicted = torch.max(output, 1)
 
-        return class_name[predicted.item()]
+    return class_name[predicted.item()]
