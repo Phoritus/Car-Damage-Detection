@@ -1,6 +1,5 @@
 import streamlit as st
 from PIL import Image
-from model_helper import predict
 import time
 import os
 
@@ -12,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for better styling
+# Custom CSS for better styling (keeping your original styles)
 st.markdown("""
 <style>
     .main-header {
@@ -88,7 +87,7 @@ with col1:
     
     uploaded_file = st.file_uploader(
         "Choose an image file", 
-        type=["jpg", "png", "jpeg"],  # Added more JPEG variants
+        type=["jpg", "png", "jpeg", "jpe", "jfif"],  # Added more JPEG variants
         help="Upload a clear image of your vehicle for damage detection"
     )
     
@@ -116,19 +115,14 @@ with col2:
             if st.button("🔍 Analyze Damage", type="primary", use_container_width=True):
                 with st.spinner("🤖 AI is analyzing your vehicle image..."):
                     try:
-                        # Save temporarily for model prediction
-                        temp_path = "temp_vehicle_image.jpg"
-                        image.save(temp_path)
+                        # Import model helper only when needed
+                        from model_helper import predict_from_image
                         
                         # Simulate processing time for better UX
                         time.sleep(1)
                         
-                        # Make prediction
-                        prediction = predict(temp_path)
-                        
-                        # Clean up temporary file
-                        if os.path.exists(temp_path):
-                            os.remove(temp_path)
+                        # Make prediction directly from PIL image
+                        prediction = predict_from_image(image)
                         
                         # Display results
                         st.success("✅ Analysis Complete!")
@@ -147,7 +141,7 @@ with col2:
                             severity = "Moderate Damage"
                             advice = "Moderate damage detected. Consider professional inspection."
                         
-                        # Results display
+                        # Results display (keeping your original styling)
                         st.markdown(f"""
                         <div class="prediction-box">
                             <h3>{result_color} Detection Results</h3>
@@ -161,9 +155,9 @@ with col2:
                         with st.expander("📊 Detailed Analysis"):
                             col_a, col_b = st.columns(2)
                             with col_a:
-                                st.metric("Damage Location", prediction.split()[0])
+                                st.metric("Damage Location", prediction.split()[0] if prediction.split() else "Unknown")
                             with col_b:
-                                st.metric("Damage Type", prediction.split()[1])
+                                st.metric("Damage Type", prediction.split()[1] if len(prediction.split()) > 1 else "Unknown")
                         
                     except Exception as e:
                         st.markdown(f"""
