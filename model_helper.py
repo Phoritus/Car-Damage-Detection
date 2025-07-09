@@ -56,8 +56,8 @@ def load_model():
         import torch
         
         model = CarDamageClassResNet50(num_class=6, drop_out=0.2)
-        
-        model_path = "model\saved_model.pth"
+
+        model_path = "model/saved_model.pth"
         if os.path.exists(model_path):
             state_dict = torch.load(model_path, map_location='cpu')
             model.load_state_dict(state_dict)
